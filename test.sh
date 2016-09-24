@@ -56,3 +56,10 @@ if [[ $test8 != "(,define,add,(,lambda,(,x,y,),(,+,x,y,),),)," ]]; then
 	exit 1
 fi
 
+# test9
+test9=`echo -n '(define str "in the (string)")' | ./lexer_test`
+if [[ $test9 != '(,define,str,"in the (string)",),' ]]; then
+	echo -n "test9 failed.Actual:${test9}"
+	exit 1
+fi
+

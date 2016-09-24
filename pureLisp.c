@@ -21,6 +21,7 @@ void skipSpace(FILE *fp) {
 int lexer(char *buf, FILE *fp) {
 	int c = 0;
 	int ptr = 0;
+	int inString = 0; // 0: ’Êíˆ—’†, 1: •¶š—ñ“àˆ—’†
 
 	skipSpace(fp);
 
@@ -41,7 +42,10 @@ int lexer(char *buf, FILE *fp) {
 		return 0;
 	}
 
-	while (c != EOF && c != '(' && c != ')' && c != ' ') {
+	while (inString == 1 || (c != EOF && c != '(' && c != ')' && c != ' ')) {
+		if (c == '"') {
+			inString = inString == 0 ? 1 : 0;
+		}
 		buf[ptr++] = c;
 		c = fgetc(fp);
 	}
