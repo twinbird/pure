@@ -34,3 +34,17 @@ if [[ $test5 != "(,10,11,12,)," ]]; then
 	echo -n "test5 failed.Actual:${test5}"
 	exit 1
 fi
+
+# test6
+test6=`echo -n "(+ 1 2)" | ./lexer_test`
+if [[ $test6 != "(,+,1,2,)," ]]; then
+	echo -n "test6 failed.Actual:${test6}"
+	exit 1
+fi
+
+# test7
+test7=`echo -n "(+ 1 a)" | ./lexer_test`
+if [[ $test7 != "(,+,1,a,)," ]]; then
+	echo -n "test7 failed.Actual:${test7}"
+	exit 1
+fi
