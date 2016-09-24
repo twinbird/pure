@@ -27,3 +27,10 @@ if [[ $test4 != "(,10,)," ]]; then
 	echo -n "test4 failed.Actual:${test4}"
 	exit 1
 fi
+
+# test5
+test5=`echo -n "(10 11 12)" | ./lexer_test`
+if [[ $test5 != "(,10,11,12,)," ]]; then
+	echo -n "test5 failed.Actual:${test5}"
+	exit 1
+fi
