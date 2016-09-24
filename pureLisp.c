@@ -77,5 +77,8 @@ void printObj(Object *obj) {
 		case TYPE_SYMBOL:
 			printf("%s", obj->symbol);
 			break;
+		case TYPE_STRING:
+			printf("%s", obj->string);
+			break;
 	}
 }
