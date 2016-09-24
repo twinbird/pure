@@ -60,3 +60,19 @@ int lexer(char *buf, FILE *fp) {
 	ungetc(c, fp);
 	return 0;
 }
+
+// V‚µ‚¢Object‚ğì¬‚·‚é
+Object *allocate(ObjType type) {
+	Object *obj = (Object *)malloc(sizeof(Object));
+	obj->type = type;
+	return obj;
+}
+
+// Object‚Ì“à—e‚ğˆóš
+void printObj(Object *obj) {
+	switch (obj->type) {
+		case TYPE_INTEGER:
+			printf("%d", obj->integer);
+			break;
+	}
+}

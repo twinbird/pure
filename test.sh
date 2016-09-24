@@ -63,3 +63,9 @@ if [[ $test9 != '(,define,str,"in the (string)",),' ]]; then
 	exit 1
 fi
 
+# test10
+test10=`./int_print_test`
+if [[ $test10 != '1' ]]; then
+	echo -n "test10 failed.Actual:${test10}"
+	exit 1
+fi
