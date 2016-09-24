@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include "pureLisp.h"
 
 // スペース以外の文字列が来るまで入力を捨てる
 void skipSpace(FILE *fp) {
@@ -48,6 +50,11 @@ int lexer(char *buf, FILE *fp) {
 		}
 		buf[ptr++] = c;
 		c = fgetc(fp);
+		if (ptr >= MAX_TOKEN_LENGTH) {
+			buf[MAX_TOKEN_LENGTH -1] = '\0';
+			printf("token %s is too long.", buf);
+			exit(1);
+		}
 	}
 	buf[ptr++] = '\0';
 	ungetc(c, fp);
