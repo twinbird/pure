@@ -69,3 +69,10 @@ if [[ $test10 != '1' ]]; then
 	echo -n "test10 failed.Actual:${test10}"
 	exit 1
 fi
+
+# test11
+test11=`./symbol_print_test`
+if [[ $test11 != 'hello' ]]; then
+	echo -n "test11 failed.Actual:${test11}"
+	exit 1
+fi

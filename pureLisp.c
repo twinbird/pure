@@ -74,5 +74,8 @@ void printObj(Object *obj) {
 		case TYPE_INTEGER:
 			printf("%d", obj->integer);
 			break;
+		case TYPE_SYMBOL:
+			printf("%s", obj->symbol);
+			break;
 	}
 }
