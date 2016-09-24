@@ -7,7 +7,7 @@ int main() {
 
 	memset(buf, '\0', MAX_TOKEN_LENGTH);
 	while (lexer(buf, stdin) == 0) {
-		printf("%s", buf);
+		printf("%s,", buf);
 	}
 	return 0;
 }
