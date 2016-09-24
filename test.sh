@@ -48,3 +48,11 @@ if [[ $test7 != "(,+,1,a,)," ]]; then
 	echo -n "test7 failed.Actual:${test7}"
 	exit 1
 fi
+
+# test8
+test8=`echo -n "(define add (lambda (x y) (+ x y)))" | ./lexer_test`
+if [[ $test8 != "(,define,add,(,lambda,(,x,y,),(,+,x,y,),),)," ]]; then
+	echo -n "test8 failed.Actual:${test8}"
+	exit 1
+fi
+
