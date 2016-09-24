@@ -83,3 +83,17 @@ if [[ $test12 != 'hello string' ]]; then
 	echo -n "test12 failed.Actual:${test12}"
 	exit 1
 fi
+
+# test13
+test13=`./list_print_test`
+if [[ $test13 != '(1 2)' ]]; then
+	echo -n "test13 failed.Actual:${test13}"
+	exit 1
+fi
+
+# test14
+#test14=`./nested_list_print_test`
+#if [[ $test14 != '(define succ (lambda (x) (+ x 1)))' ]]; then
+#	echo -n "test14 failed.Actual:${test14}"
+#	exit 1
+#fi

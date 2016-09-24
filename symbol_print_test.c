@@ -5,7 +5,7 @@
 int main() {
 	Object *obj = allocate(TYPE_SYMBOL);
 	strcpy(obj->symbol, "hello");
-	printObj(obj);
+	print(obj);
 
 	return 0;
 }

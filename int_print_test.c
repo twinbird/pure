@@ -4,7 +4,7 @@
 int main() {
 	Object *obj = allocate(TYPE_INTEGER);
 	obj->integer = 1;
-	printObj(obj);
+	print(obj);
 
 	return 0;
 }

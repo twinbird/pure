@@ -8,7 +8,7 @@ int main() {
 	Object *obj = allocate(TYPE_STRING);
 	obj->string = (char *)malloc(sizeof(expect));
 	strcpy(obj->string, expect);
-	printObj(obj);
+	print(obj);
 
 	return 0;
 }

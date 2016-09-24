@@ -68,7 +68,9 @@ Object *allocate(ObjType type) {
 	return obj;
 }
 
-// Objectの内容を印字
+void printList(Object *obj);
+
+// Objectの内容を印字(atomのみ)
 void printObj(Object *obj) {
 	switch (obj->type) {
 		case TYPE_INTEGER:
@@ -80,5 +82,35 @@ void printObj(Object *obj) {
 		case TYPE_STRING:
 			printf("%s", obj->string);
 			break;
+		case TYPE_PAIR:
+			printList(obj);
+			break;
+		case TYPE_NIL:
+			printf("nil");
+			break;
+		default:
+			printf("bug.Unknown type %d.", obj->type);
+			exit(1);
+			break;
+	}
+}
+
+// Objectの内容を印字(listのみ)
+void printList(Object *obj) {
+	print(obj->pair.car);
+	if (obj->pair.cdr->type != TYPE_NIL) {
+		printf(" ");
+		printObj(obj->pair.cdr);
+	}
+}
+
+// Objectの内容を印字
+void print(Object *obj) {
+	if (obj->type == TYPE_PAIR) {
+		printf("(");
+		printList(obj);
+		printf(")");
+	} else {
+		printObj(obj);
 	}
 }
