@@ -111,3 +111,10 @@ if [[ $test16 != 'nil' ]]; then
 	echo -n "test16 failed.Actual:${test16}"
 	exit 1
 fi
+
+# test17
+test17=`echo -n "(1 . 2)" | ./lexer_test`
+if [[ $test17 != '(,1,.,2,),' ]]; then
+	echo -n "test17 failed.Actual:${test17}"
+	exit 1
+fi
