@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "pureLisp.h"
 
 // スペース以外の文字列が来るまで入力を捨てる
@@ -13,6 +14,9 @@ void skipSpace(FILE *fp) {
 	ungetc(c, fp);
 }
 
+// ungetToken用のバッファ
+char getTokenBuffer[MAX_TOKEN_LENGTH];
+
 /*
  * fpから入力を取り, 1綴りのトークン毎にbufへ入れる.
  * bufは呼び出し元の責任で初期化する必要がある.
@@ -20,10 +24,18 @@ void skipSpace(FILE *fp) {
  *   0: 入力に続きがある.
  *   1: 入力が終端になった.
  */
-int lexer(char *buf, FILE *fp) {
+int getToken(char *buf, FILE *fp) {
 	int c = 0;
 	int ptr = 0;
 	int inString = 0; // 0: 通常処理中, 1: 文字列内処理中
+
+	// ungetされたバッファがあればそこから返す
+	if (strcmp(getTokenBuffer, "") != 0) {
+		strcpy(buf, getTokenBuffer);
+		//unget用のバッファをクリアしておく
+		memset(getTokenBuffer, '\0', MAX_TOKEN_LENGTH);
+		return 0;
+	}
 
 	skipSpace(fp);
 
@@ -59,6 +71,13 @@ int lexer(char *buf, FILE *fp) {
 	buf[ptr++] = '\0';
 	ungetc(c, fp);
 	return 0;
+}
+
+/*
+ * getTokenで取得したトークン一つをgetTokenのバッファに戻す.
+ */
+void ungetToken(char *buf) {
+	strcpy(getTokenBuffer, buf);
 }
 
 // 新しいObjectを作成する

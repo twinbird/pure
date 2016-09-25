@@ -118,3 +118,10 @@ if [[ $test17 != '(,1,.,2,),' ]]; then
 	echo -n "test17 failed.Actual:${test17}"
 	exit 1
 fi
+
+# test18
+test18=`echo -n "(define add (lambda (x y) (+ x y)))" | ./unget_token_test`
+if [[ $test18 != "(,define,add,(,lambda,(,x,y,),(,+,x,y,),),)," ]]; then
+	echo -n "test18 failed.Actual:${test18}"
+	exit 1
+fi

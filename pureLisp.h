@@ -21,6 +21,7 @@ typedef struct _object {
 	};
 } Object;
 
-int lexer(char *buf, FILE *fp);
+int getToken(char *buf, FILE *fp);
+void ungetToken(char *buf);
 Object *allocate(ObjType type);
 void print(Object *obj);
