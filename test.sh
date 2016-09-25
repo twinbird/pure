@@ -97,3 +97,17 @@ if [[ $test14 != '(lambda (x) (+ x 1))' ]]; then
 	echo -n "test14 failed.Actual:${test14}"
 	exit 1
 fi
+
+# test15
+test15=`./dot_pair_print_test`
+if [[ $test15 != '(1 . 2)' ]]; then
+	echo -n "test15 failed.Actual:${test15}"
+	exit 1
+fi
+
+# test16
+test16=`./nil_print_test`
+if [[ $test16 != 'nil' ]]; then
+	echo -n "test16 failed.Actual:${test16}"
+	exit 1
+fi

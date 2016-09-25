@@ -99,8 +99,15 @@ void printObj(Object *obj) {
 void printList(Object *obj) {
 	print(obj->pair.car);
 	if (obj->pair.cdr->type != TYPE_NIL) {
-		printf(" ");
-		printObj(obj->pair.cdr);
+		if (obj->pair.cdr->type == TYPE_PAIR) {
+			// list
+			printf(" ");
+			printObj(obj->pair.cdr);
+		} else {
+			// dot pair
+			printf(" . ");
+			printObj(obj->pair.cdr);
+		}
 	}
 }
 
