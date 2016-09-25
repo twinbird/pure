@@ -92,8 +92,8 @@ if [[ $test13 != '(1 2)' ]]; then
 fi
 
 # test14
-#test14=`./nested_list_print_test`
-#if [[ $test14 != '(define succ (lambda (x) (+ x 1)))' ]]; then
-#	echo -n "test14 failed.Actual:${test14}"
-#	exit 1
-#fi
+test14=`./nested_list_print_test`
+if [[ $test14 != '(lambda (x) (+ x 1))' ]]; then
+	echo -n "test14 failed.Actual:${test14}"
+	exit 1
+fi
