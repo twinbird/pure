@@ -125,3 +125,53 @@ if [[ $test18 != "(,define,add,(,lambda,(,x,y,),(,+,x,y,),),)," ]]; then
 	echo -n "test18 failed.Actual:${test18}"
 	exit 1
 fi
+
+# test19
+test19=`echo -n "1" | ./read_test`
+if [[ $test19 != "1" ]]; then
+	echo -n "test19 failed.Actual:${test19}"
+	exit 1
+fi
+
+# test20
+test20=`echo -n '"hello world"' | ./read_test`
+if [[ $test20 != 'hello world' ]]; then
+	echo -n "test20 failed.Actual:${test20}"
+	exit 1
+fi
+
+# test21
+test21=`echo -n 'nil' | ./read_test`
+if [[ $test21 != 'nil' ]]; then
+	echo -n "test21 failed.Actual:${test21}"
+	exit 1
+fi
+
+# test22
+test22=`echo -n "(+ 2 3)" | ./read_test`
+if [[ $test22 != "(+ 2 3)" ]]; then
+	echo -n "test22 failed.Actual:${test22}"
+	exit 1
+fi
+
+# test23
+test23=`echo -n "(define add (lambda (x y) (+ x y)))" | ./read_test`
+if [[ $test23 != "(define add (lambda (x y) (+ x y)))" ]]; then
+	echo -n "test23 failed.Actual:${test23}"
+	exit 1
+fi
+
+# test24
+test24=`echo -n "(1 . 2)" | ./read_test`
+if [[ $test24 != "(1 . 2)" ]]; then
+	echo -n "test24 failed.Actual:${test24}"
+	exit 1
+fi
+
+# test25
+test25=`echo -n "(1 . (2 . 3))" | ./read_test`
+if [[ $test25 != "(1 2 . 3)" ]]; then
+	echo -n "test25 failed.Actual:${test25}"
+	exit 1
+fi
+
