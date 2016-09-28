@@ -175,3 +175,24 @@ if [[ $test25 != "(1 2 . 3)" ]]; then
 	exit 1
 fi
 
+# test26
+test26=`echo -n "1" | ./eval_test`
+if [[ $test26 != "1" ]]; then
+	echo -n "test26 failed.Actual:${test26}"
+	exit 1
+fi
+
+# test27
+test27=`echo -n '"hello world"' | ./eval_test`
+if [[ $test27 != 'hello world' ]]; then
+	echo -n "test27 failed.Actual:${test27}"
+	exit 1
+fi
+
+# test28
+test28=`echo -n 'nil' | ./eval_test`
+if [[ $test28 != 'nil' ]]; then
+	echo -n "test28 failed.Actual:${test28}"
+	exit 1
+fi
+

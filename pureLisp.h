@@ -26,3 +26,4 @@ void ungetToken(char *buf);
 Object *allocate(ObjType type);
 void print(Object *obj);
 Object *read(FILE *fp);
+Object *eval(Object *obj);

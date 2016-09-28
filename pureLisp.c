@@ -256,3 +256,17 @@ Object *read(FILE *fp) {
 	printf("malform.Token is %s\n", buf);
 	exit(1);
 }
+
+Object *eval(Object *obj) {
+	if (obj->type == TYPE_INTEGER) {
+		return obj;
+	}
+	if (obj->type == TYPE_STRING) {
+		return obj;
+	}
+	if (obj->type == TYPE_NIL) {
+		return obj;
+	}
+	printf("malform.");
+	exit(1);
+}
