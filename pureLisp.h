@@ -16,7 +16,7 @@ typedef struct _object {
 			struct _object *cdr;
 		} pair;
 		int integer;
-		char symbol[MAX_TOKEN_LENGTH];
+		char *symbol;
 		char *string;
 	};
 } Object;

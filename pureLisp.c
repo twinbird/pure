@@ -18,6 +18,9 @@ void skipSpace(FILE *fp) {
 // ungetToken用のバッファ
 char getTokenBuffer[MAX_TOKEN_LENGTH] = {'\0'};
 
+// symbolテーブル
+Object *SymbolTable = NULL;
+
 /*
  * fpから入力を取り, 1綴りのトークン毎にbufへ入れる.
  * bufは呼び出し元の責任で初期化する必要がある.
@@ -201,9 +204,29 @@ Object *makeString(char *buf) {
 	return obj;
 }
 
+// symbolテーブルへ登録する.
+// 登録済みなら登録済みのObjectを返す.
 Object *makeSymbol(char *buf) {
+	// テーブル未初期化ならNILを入れておく
+	if (SymbolTable == NULL) {
+		SymbolTable = allocate(TYPE_NIL);
+	}
+	// テーブルに登録済みか調べる
+	for (Object *o = SymbolTable; o->type != TYPE_NIL; o = o->pair.cdr) {
+		if (strcmp(o->symbol, buf) == 0) {
+			return o;
+		}
+	}
+	// 未登録なので新しく作って登録
 	Object *obj = allocate(TYPE_SYMBOL);
+	obj->symbol = (char *)malloc(strlen(buf) + 1); // \0 分+1
 	strcpy(obj->symbol, buf);
+	// ペアを作ってシンボルテーブルのリストへつなげる
+	Object *p = allocate(TYPE_PAIR);
+	p->pair.cdr = SymbolTable;
+	p->pair.car = obj;
+	SymbolTable = p;
+	// 生成したsymbolを返す
 	return obj;
 }
 
