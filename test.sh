@@ -196,3 +196,17 @@ if [[ $test28 != 'nil' ]]; then
 	exit 1
 fi
 
+# test29
+test29=`echo -n '(quote (1 23 456))' | ./eval_test`
+if [[ $test29 != '(1 23 456)' ]]; then
+	echo -n "test29 failed.Actual:${test29}"
+	exit 1
+fi
+
+# test30
+test30=`echo -n '(quote (a bc def))' | ./eval_test`
+if [[ $test30 != '(a bc def)' ]]; then
+	echo -n "test30 failed.Actual:${test30}"
+	exit 1
+fi
+

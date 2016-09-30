@@ -280,6 +280,19 @@ Object *read(FILE *fp) {
 	exit(1);
 }
 
+Object *apply(Object *func, Object *param) {
+	if (func->type != TYPE_SYMBOL) {
+		printf("malform");
+		exit(1);
+	}
+	// Special form
+	if (strcmp(func->symbol, "quote") == 0) {
+		return param->pair.car;
+	}
+	printf("not implement.");
+	exit(1);
+}
+
 Object *eval(Object *obj) {
 	if (obj->type == TYPE_INTEGER) {
 		return obj;
@@ -289,6 +302,9 @@ Object *eval(Object *obj) {
 	}
 	if (obj->type == TYPE_NIL) {
 		return obj;
+	}
+	if (obj->type == TYPE_PAIR) {
+		return apply(obj->pair.car, obj->pair.cdr);
 	}
 	printf("malform.");
 	exit(1);
