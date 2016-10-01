@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <assert.h>
 #include "pureLisp.h"
 
 // スペース以外の文字列が来るまで入力を捨てる
@@ -20,6 +21,59 @@ char getTokenBuffer[MAX_TOKEN_LENGTH] = {'\0'};
 
 // symbolテーブル
 Object *SymbolTable = NULL;
+
+// envの下のスコープ(環境)を作成する.
+Object *makeEnv(Object *env, Object *vars, Object *vals) {
+	// 新しい環境
+	Object *newEnv = allocate(TYPE_ENV);
+	// 値とシンボルのペアのリスト(NILを入れて空リストにしておく)
+	Object *tbl = allocate(TYPE_NIL);
+
+	Object *var = vars;
+	Object *val = vals;
+	while (var->type != TYPE_NIL) {
+		// tblへの追加用のペア
+		Object *cell = allocate(TYPE_PAIR);
+		// 値とシンボルのペア
+		Object *p = allocate(TYPE_PAIR);
+		p->pair.car = var->pair.car;
+		p->pair.cdr = val->pair.car;
+		// ペアのリストへ追加
+		cell->pair.car = p;
+		cell->pair.cdr = tbl;
+		tbl = cell;
+		// 次の変数へ
+		var = var->pair.cdr;
+		val = val->pair.cdr;
+	}
+	// 新しい環境へ設定
+	newEnv->env.up = env;
+	newEnv->env.vars = tbl;
+	// 新しい環境を返す
+	return newEnv;
+}
+
+// envを調べて変数を参照する
+Object *lookup(Object *env, Object *symbol) {
+	Object *tbl, *p, *cell;
+	// 見つからなかったらNILを返す
+	if (env->type == TYPE_NIL) {
+		return allocate(TYPE_NIL);
+	}
+	assert(env->type == TYPE_ENV);
+	// 値とシンボルのペアを順に調べていく
+	tbl = env->env.vars;
+	for (cell = tbl; cell->type != TYPE_NIL; cell = cell->pair.cdr) {
+		p = cell->pair.car;
+		// 見つかった
+		if (p->pair.car == symbol) {
+			// 値を返す
+			return p->pair.cdr;
+		}
+	}
+	// 見つからなかったら上の環境を調べる
+	return lookup(env->env.up, symbol);
+}
 
 /*
  * fpから入力を取り, 1綴りのトークン毎にbufへ入れる.

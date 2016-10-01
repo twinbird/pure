@@ -5,7 +5,8 @@ typedef enum _objType {
 	TYPE_INTEGER,
 	TYPE_SYMBOL,
 	TYPE_STRING,
-	TYPE_NIL
+	TYPE_NIL,
+	TYPE_ENV
 } ObjType;
 
 typedef struct _object {
@@ -18,6 +19,10 @@ typedef struct _object {
 		int integer;
 		char *symbol;
 		char *string;
+		struct {
+			struct _object *vars;
+			struct _object *up;
+		} env;
 	};
 } Object;
 
@@ -27,3 +32,8 @@ Object *allocate(ObjType type);
 void print(Object *obj);
 Object *read(FILE *fp);
 Object *eval(Object *obj);
+Object *lookup(Object *env, Object *symbol);
+Object *makeEnv(Object *env, Object *vars, Object *vals);
+Object *makeInteger(char *buf);
+Object *makeSymbol(char *buf);
+Object *makeString(char *buf);

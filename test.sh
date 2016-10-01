@@ -210,3 +210,10 @@ if [[ $test30 != '(a bc def)' ]]; then
 	exit 1
 fi
 
+# test31
+test31=`./env_test`
+if [[ $test31 != 'Success' ]]; then
+	echo -n "test31 failed.${test31}"
+	exit 1
+fi
+
