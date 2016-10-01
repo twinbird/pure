@@ -3,6 +3,8 @@
 #include "pureLisp.h"
 
 int main() {
+	initialize();
+
 	// (1 2)‚ð\¬
 	Object *obj = allocate(TYPE_PAIR);
 	obj->pair.car = allocate(TYPE_INTEGER);

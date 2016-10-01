@@ -4,6 +4,8 @@
 #include "pureLisp.h"
 
 int main() {
+	initialize();
+
 	char expect[] = "hello string";
 	Object *obj = allocate(TYPE_STRING);
 	obj->string = (char *)malloc(sizeof(expect));

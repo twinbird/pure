@@ -3,6 +3,8 @@
 #include "pureLisp.h"
 
 int main() {
+	initialize();
+
 	char buf[MAX_TOKEN_LENGTH];
 
 	memset(buf, '\0', MAX_TOKEN_LENGTH);

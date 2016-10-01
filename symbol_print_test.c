@@ -4,6 +4,8 @@
 #include "pureLisp.h"
 
 int main() {
+	initialize();
+
 	Object *obj = allocate(TYPE_SYMBOL);
 	obj->symbol = (char *)malloc(strlen("hello") + 1);
 	strcpy(obj->symbol, "hello");

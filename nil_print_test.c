@@ -3,6 +3,8 @@
 #include "pureLisp.h"
 
 int main() {
+	initialize();
+
 	Object *obj = allocate(TYPE_NIL);
 	print(obj);
 

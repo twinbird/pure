@@ -19,15 +19,21 @@ void skipSpace(FILE *fp) {
 // ungetToken用のバッファ
 char getTokenBuffer[MAX_TOKEN_LENGTH] = {'\0'};
 
-// symbolテーブル
+// symbolテーブル(initializeで初期化)
 Object *SymbolTable = NULL;
+
+// トップレベルの環境(initializeで初期化)
+Object *TopEnv = NULL;
+
+// NIL定数(initializeで初期化)
+Object *NIL = NULL;
 
 // envの下のスコープ(環境)を作成する.
 Object *makeEnv(Object *env, Object *vars, Object *vals) {
 	// 新しい環境
 	Object *newEnv = allocate(TYPE_ENV);
 	// 値とシンボルのペアのリスト(NILを入れて空リストにしておく)
-	Object *tbl = allocate(TYPE_NIL);
+	Object *tbl = NIL;
 
 	Object *var = vars;
 	Object *val = vals;
@@ -58,7 +64,7 @@ Object *lookup(Object *env, Object *symbol) {
 	Object *tbl, *p, *cell;
 	// 見つからなかったらNILを返す
 	if (env->type == TYPE_NIL) {
-		return allocate(TYPE_NIL);
+		return NIL;
 	}
 	assert(env->type == TYPE_ENV);
 	// 値とシンボルのペアを順に調べていく
@@ -233,11 +239,6 @@ int isString(char *buf) {
 	return 1;
 }
 
-Object *makeNil() {
-	Object *obj = allocate(TYPE_NIL);
-	return obj;
-}
-
 Object *makeInteger(char *buf) {
 	Object *obj = allocate(TYPE_INTEGER);
 	obj->integer = atoi(buf);
@@ -261,14 +262,10 @@ Object *makeString(char *buf) {
 // symbolテーブルへ登録する.
 // 登録済みなら登録済みのObjectを返す.
 Object *makeSymbol(char *buf) {
-	// テーブル未初期化ならNILを入れておく
-	if (SymbolTable == NULL) {
-		SymbolTable = allocate(TYPE_NIL);
-	}
 	// テーブルに登録済みか調べる
 	for (Object *o = SymbolTable; o->type != TYPE_NIL; o = o->pair.cdr) {
-		if (strcmp(o->symbol, buf) == 0) {
-			return o;
+		if (strcmp(o->pair.car->symbol, buf) == 0) {
+			return o->pair.car;
 		}
 	}
 	// 未登録なので新しく作って登録
@@ -297,7 +294,7 @@ Object *readList(FILE *fp) {
 	// cdrへの設定の判断のために1トークン先読みして戻す
 	getToken(buf, fp);
 	if (strcmp(buf, ")") == 0) {
-		obj->pair.cdr = allocate(TYPE_NIL);
+		obj->pair.cdr = NIL;
 	} else if (strcmp(buf, ".") == 0) {
 		obj->pair.cdr = read(fp);
 	} else {
@@ -320,7 +317,7 @@ Object *read(FILE *fp) {
 			return readList(fp);
 		}
 		if (strcmp(buf, "nil") == 0) {
-			return makeNil();
+			return NIL;
 		}
 		if (isInteger(buf)) {
 			return makeInteger(buf);
@@ -362,4 +359,12 @@ Object *eval(Object *obj) {
 	}
 	printf("malform.");
 	exit(1);
+}
+
+// 初期化関数
+// 他の関数を呼び出す前に必ず呼び出すこと
+void initialize() {
+	NIL = allocate(TYPE_NIL);
+	SymbolTable = NIL;
+	TopEnv = NIL;
 }

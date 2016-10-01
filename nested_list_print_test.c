@@ -4,6 +4,8 @@
 #include "pureLisp.h"
 
 int main() {
+	initialize();
+
 	// (lambda (x) (+ x 1)) ‚ð\¬
 	Object *obj = allocate(TYPE_PAIR);
 	obj->pair.car = allocate(TYPE_SYMBOL);

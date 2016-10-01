@@ -3,6 +3,8 @@
 #include "pureLisp.h"
 
 int main() {
+	initialize();
+
 	Object *env = allocate(TYPE_NIL);
 	Object *vals1 = allocate(TYPE_PAIR);
 	Object *syms1 = allocate(TYPE_PAIR);
@@ -42,22 +44,20 @@ int main() {
 	env = makeEnv(env, syms1, vals1);
 
 	ret = lookup(env, makeSymbol("a"));
-	/*
 	if (ret->integer != 1) {
-		printf("Fail.Symbol 'a' is not found.");
+		printf("Symbol 'a' expect value is 1.Actual %d", ret->integer);
 		return 1;
 	}
 	ret = lookup(env, makeSymbol("b"));
 	if (ret->integer != 2) {
-		printf("Fail.Symbol 'b' is not found.");
+		printf("Symbol 'b' expect value is 2.Actual %d", ret->integer);
 		return 1;
 	}
 	ret = lookup(env, makeSymbol("c"));
 	if (ret->integer != 10) {
-		printf("Fail.Symbol 'c' is not found.");
+		printf("Symbol 'c' expect value is 10.Actual %d", ret->integer);
 		return 1;
 	}
-	*/
 	printf("Success");
 
 	return 0;

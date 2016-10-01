@@ -37,3 +37,4 @@ Object *makeEnv(Object *env, Object *vars, Object *vals);
 Object *makeInteger(char *buf);
 Object *makeSymbol(char *buf);
 Object *makeString(char *buf);
+void initialize();
