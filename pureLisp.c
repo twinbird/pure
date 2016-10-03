@@ -377,6 +377,15 @@ Object *apply(Object *func, Object *param) {
 		Object *val = eval(param->pair.cdr->pair.car);
 		return define(sym, val);
 	}
+	if (strcmp(func->symbol, "if") == 0) {
+		Object *t = param->pair.cdr->pair.car;
+		Object *f = param->pair.cdr->pair.cdr->pair.car;
+		if (param->pair.car->type == TYPE_NIL) {
+			return eval(f);
+		} else {
+			return eval(t);
+		}
+	}
 	printf("not implement.");
 	exit(1);
 }

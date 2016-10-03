@@ -224,3 +224,14 @@ if [[ $test32 != 'Success' ]]; then
 	exit 1
 fi
 
+test33=`echo -n '(if nil 1 2)' | ./eval_test`
+if [[ $test33 != '2' ]]; then
+	echo -n "test33 failed.Expect:'2'.Actual:${test33}"
+	exit 1
+fi
+
+test34=`echo -n '(if 1 1 2)' | ./eval_test`
+if [[ $test34 != '1' ]]; then
+	echo -n "test34 failed.Expect:'1'.Actual:${test34}"
+	exit 1
+fi
