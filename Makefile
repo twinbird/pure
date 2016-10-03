@@ -1,4 +1,4 @@
-test: lexer_test int_print_test symbol_print_test string_print_test list_print_test nested_list_print_test dot_pair_print_test nil_print_test unget_token_test read_test eval_test env_test
+test: lexer_test int_print_test symbol_print_test string_print_test list_print_test nested_list_print_test dot_pair_print_test nil_print_test unget_token_test read_test eval_test env_test define_test
 
 lexer_test: lexer_test.o pureLisp.o
 
@@ -23,6 +23,8 @@ read_test: read_test.o pureLisp.o
 eval_test: eval_test.o pureLisp.o
 
 env_test: env_test.o pureLisp.o
+
+define_test: define_test.o pureLisp.o
 
 clean:
 	rm -rf *.o

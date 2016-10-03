@@ -26,6 +26,8 @@ typedef struct _object {
 	};
 } Object;
 
+extern Object *TopEnv;
+
 int getToken(char *buf, FILE *fp);
 void ungetToken(char *buf);
 Object *allocate(ObjType type);
@@ -37,4 +39,5 @@ Object *makeEnv(Object *env, Object *vars, Object *vals);
 Object *makeInteger(char *buf);
 Object *makeSymbol(char *buf);
 Object *makeString(char *buf);
+Object *define(Object *sym, Object *val);
 void initialize();

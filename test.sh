@@ -217,3 +217,10 @@ if [[ $test31 != 'Success' ]]; then
 	exit 1
 fi
 
+# test32
+test32=`./define_test`
+if [[ $test32 != 'Success' ]]; then
+	echo -n "test32 failed.${test32}"
+	exit 1
+fi
+

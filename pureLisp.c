@@ -28,6 +28,38 @@ Object *TopEnv = NULL;
 // NIL定数(initializeで初期化)
 Object *NIL = NULL;
 
+// トップレベルの環境で変数を定義する
+// 定義済みなら値を上書きする
+// 返り値はシンボル
+Object *define(Object *sym, Object *val) {
+	Object *newCell = allocate(TYPE_PAIR);
+	// 新しい変数(シンボルと値)のペア
+	Object *newVar = allocate(TYPE_PAIR);
+	newVar->pair.car = sym;
+	newVar->pair.cdr = val;
+
+	// すでに定義済みかどうかを調べる
+	// 値とシンボルのペアを順に調べていく
+	Object *cell, *p;
+	Object *tbl = TopEnv->env.vars;
+	for (cell = tbl; cell->type != TYPE_NIL; cell = cell->pair.cdr) {
+		p = cell->pair.car;
+		if (p->pair.car == sym) {
+			// 見つかった
+			// 値を上書きする
+			p->pair.cdr = val;
+			return sym;
+		}
+	}
+
+	// 見つからなかったので環境の変数テーブルにくっつける
+	newCell->pair.car = newVar;
+	newCell->pair.cdr = TopEnv->env.vars;
+	TopEnv->env.vars = newCell;
+
+	return sym;
+}
+
 // envの下のスコープ(環境)を作成する.
 Object *makeEnv(Object *env, Object *vars, Object *vals) {
 	// 新しい環境
@@ -340,6 +372,11 @@ Object *apply(Object *func, Object *param) {
 	if (strcmp(func->symbol, "quote") == 0) {
 		return param->pair.car;
 	}
+	if (strcmp(func->symbol, "define") == 0) {
+		Object *sym = param->pair.car;
+		Object *val = eval(param->pair.cdr);
+		return define(sym, val);
+	}
 	printf("not implement.");
 	exit(1);
 }
@@ -366,5 +403,5 @@ Object *eval(Object *obj) {
 void initialize() {
 	NIL = allocate(TYPE_NIL);
 	SymbolTable = NIL;
-	TopEnv = NIL;
+	TopEnv = makeEnv(NIL, NIL, NIL);
 }
