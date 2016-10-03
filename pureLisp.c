@@ -374,7 +374,7 @@ Object *apply(Object *func, Object *param) {
 	}
 	if (strcmp(func->symbol, "define") == 0) {
 		Object *sym = param->pair.car;
-		Object *val = eval(param->pair.cdr);
+		Object *val = eval(param->pair.cdr->pair.car);
 		return define(sym, val);
 	}
 	printf("not implement.");
