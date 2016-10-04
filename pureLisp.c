@@ -27,6 +27,8 @@ Object *TopEnv = NULL;
 
 // NIL定数(initializeで初期化)
 Object *NIL = NULL;
+// T定数(initializeで初期化)
+Object *T = NULL;
 
 // トップレベルの環境で変数を定義する
 // 定義済みなら値を上書きする
@@ -203,6 +205,9 @@ void printObj(Object *obj) {
 		case TYPE_NIL:
 			printf("nil");
 			break;
+		case TYPE_T:
+			printf("t");
+			break;
 		default:
 			printf("bug.Unknown type %d.", obj->type);
 			exit(1);
@@ -365,7 +370,7 @@ Object *read(FILE *fp) {
 
 Object *apply(Object *func, Object *param) {
 	if (func->type != TYPE_SYMBOL) {
-		printf("malform");
+		printf("malform on apply.");
 		exit(1);
 	}
 	// Special form
@@ -400,17 +405,38 @@ Object *eval(Object *obj) {
 	if (obj->type == TYPE_NIL) {
 		return obj;
 	}
+	if (obj->type == TYPE_T) {
+		return obj;
+	}
+	if (obj->type == TYPE_SYMBOL) {
+		return lookup(TopEnv, obj);
+	}
 	if (obj->type == TYPE_PAIR) {
 		return apply(obj->pair.car, obj->pair.cdr);
 	}
-	printf("malform.");
+	printf("malform on eval.");
 	exit(1);
 }
+
+//プリミティブ関数(Atom)
+/*
+Object *primitive_atom(Object *args) {
+	Object *arg = args->pair.car;
+	if (arg->type == TYPE_PAIR) {
+		return NIL;
+	}
+	return makeSymbol("t");
+}
+*/
 
 // 初期化関数
 // 他の関数を呼び出す前に必ず呼び出すこと
 void initialize() {
+	T = allocate(TYPE_T);
 	NIL = allocate(TYPE_NIL);
 	SymbolTable = NIL;
 	TopEnv = makeEnv(NIL, NIL, NIL);
+	// 予約語の定義
+	define(makeSymbol("nil"), NIL);
+	define(makeSymbol("t"), T);
 }

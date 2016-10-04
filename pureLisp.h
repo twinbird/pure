@@ -6,7 +6,9 @@ typedef enum _objType {
 	TYPE_SYMBOL,
 	TYPE_STRING,
 	TYPE_NIL,
-	TYPE_ENV
+	TYPE_ENV,
+	TYPE_PRIMITIVE,
+	TYPE_T
 } ObjType;
 
 typedef struct _object {
@@ -23,6 +25,7 @@ typedef struct _object {
 			struct _object *vars;
 			struct _object *up;
 		} env;
+		struct _object *(*primitive)(struct _object*);
 	};
 } Object;
 

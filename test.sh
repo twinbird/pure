@@ -235,3 +235,27 @@ if [[ $test34 != '1' ]]; then
 	echo -n "test34 failed.Expect:'1'.Actual:${test34}"
 	exit 1
 fi
+
+test35=`echo -n 't' | ./eval_test`
+if [[ $test35 != 't' ]]; then
+	echo -n "test35 failed.Expect:'t'.Actual:${test35}"
+	exit 1
+fi
+
+test36=`echo -n 'nil' | ./eval_test`
+if [[ $test36 != 'nil' ]]; then
+	echo -n "test36 failed.Expect:'nil'.Actual:${test36}"
+	exit 1
+fi
+
+test37=`echo -n '(atom (quote 1 2))' | ./eval_test`
+if [[ $test37 != 'nil' ]]; then
+	echo -n "test37 failed.Expect:'nil'.Actual:${test37}"
+	exit 1
+fi
+
+test38=`echo -n '(atom 1)' | ./eval_test`
+if [[ $test38 != 't' ]]; then
+	echo -n "test38 failed.Expect:'t'.Actual:${test38}"
+	exit 1
+fi
