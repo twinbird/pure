@@ -11,6 +11,9 @@ typedef enum _objType {
 	TYPE_T
 } ObjType;
 
+// Primitive function type
+typedef struct _object *(*Primitive)(struct _object*);
+
 typedef struct _object {
 	ObjType type;
 	union {
@@ -25,7 +28,7 @@ typedef struct _object {
 			struct _object *vars;
 			struct _object *up;
 		} env;
-		struct _object *(*primitive)(struct _object*);
+		Primitive func;
 	};
 } Object;
 

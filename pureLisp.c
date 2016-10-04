@@ -368,21 +368,21 @@ Object *read(FILE *fp) {
 	exit(1);
 }
 
-Object *apply(Object *func, Object *param) {
-	if (func->type != TYPE_SYMBOL) {
+Object *apply(Object *sym, Object *param) {
+	if (sym->type != TYPE_SYMBOL) {
 		printf("malform on apply.");
 		exit(1);
 	}
 	// Special form
-	if (strcmp(func->symbol, "quote") == 0) {
+	if (strcmp(sym->symbol, "quote") == 0) {
 		return param->pair.car;
 	}
-	if (strcmp(func->symbol, "define") == 0) {
+	if (strcmp(sym->symbol, "define") == 0) {
 		Object *sym = param->pair.car;
 		Object *val = eval(param->pair.cdr->pair.car);
 		return define(sym, val);
 	}
-	if (strcmp(func->symbol, "if") == 0) {
+	if (strcmp(sym->symbol, "if") == 0) {
 		Object *t = param->pair.cdr->pair.car;
 		Object *f = param->pair.cdr->pair.cdr->pair.car;
 		if (param->pair.car->type == TYPE_NIL) {
@@ -391,7 +391,12 @@ Object *apply(Object *func, Object *param) {
 			return eval(t);
 		}
 	}
-	printf("not implement.");
+	// Primitive function
+	Object *func = lookup(TopEnv, sym);
+	if (func->type == TYPE_PRIMITIVE) {
+		return func->func(param);
+	}
+	printf("not implement type:%d.", func->type);
 	exit(1);
 }
 
@@ -419,15 +424,20 @@ Object *eval(Object *obj) {
 }
 
 //プリミティブ関数(Atom)
-/*
-Object *primitive_atom(Object *args) {
+Object *primitiveAtom(Object *args) {
 	Object *arg = args->pair.car;
 	if (arg->type == TYPE_PAIR) {
 		return NIL;
 	}
 	return makeSymbol("t");
 }
-*/
+
+// プリミティブ関数定義
+void definePrimitive(Object *sym, Primitive func) {
+	Object *obj = allocate(TYPE_PRIMITIVE);
+	obj->func = func;
+	define(sym, obj);
+}
 
 // 初期化関数
 // 他の関数を呼び出す前に必ず呼び出すこと
@@ -439,4 +449,5 @@ void initialize() {
 	// 予約語の定義
 	define(makeSymbol("nil"), NIL);
 	define(makeSymbol("t"), T);
+	definePrimitive(makeSymbol("atom"), primitiveAtom);
 }
