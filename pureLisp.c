@@ -463,6 +463,15 @@ Object *primitiveEq(Object *args) {
 	return NIL;
 }
 
+Object *primitiveCons(Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	Object *pair = allocate(TYPE_PAIR);
+	pair->pair.car = one;
+	pair->pair.cdr = two;
+	return pair;
+}
+
 // プリミティブ関数定義
 void definePrimitive(Object *sym, Primitive func) {
 	Object *obj = allocate(TYPE_PRIMITIVE);
@@ -482,4 +491,5 @@ void initialize() {
 	define(makeSymbol("t"), T);
 	definePrimitive(makeSymbol("atom"), primitiveAtom);
 	definePrimitive(makeSymbol("eq"), primitiveEq);
+	definePrimitive(makeSymbol("cons"), primitiveCons);
 }

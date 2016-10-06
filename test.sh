@@ -295,3 +295,21 @@ if [[ $test44 != 'nil' ]]; then
 	echo -n "test44 failed.Expect:'nil'.Actual:${test44}"
 	exit 1
 fi
+
+test45=`echo -n '(cons 1 2)' | ./eval_test`
+if [[ $test45 != '(1 . 2)' ]]; then
+	echo -n "test45 failed.Expect:'(1 . 2)'.Actual:${test45}"
+	exit 1
+fi
+
+test46=`echo -n '(cons hello world)' | ./eval_test`
+if [[ $test46 != '(hello . world)' ]]; then
+	echo -n "test46 failed.Expect:'(hello . world)'.Actual:${test46}"
+	exit 1
+fi
+
+test47=`echo -n '(cons hello nil)' | ./eval_test`
+if [[ $test47 != '(hello)' ]]; then
+	echo -n "test47 failed.Expect:'(hello)'.Actual:${test47}"
+	exit 1
+fi
