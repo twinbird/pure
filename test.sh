@@ -259,3 +259,39 @@ if [[ $test38 != 't' ]]; then
 	echo -n "test38 failed.Expect:'t'.Actual:${test38}"
 	exit 1
 fi
+
+test39=`echo -n '(eq 1 1)' | ./eval_test`
+if [[ $test39 != 't' ]]; then
+	echo -n "test39 failed.Expect:'t'.Actual:${test39}"
+	exit 1
+fi
+
+test40=`echo -n '(eq 1 2)' | ./eval_test`
+if [[ $test40 != 'nil' ]]; then
+	echo -n "test40 failed.Expect:'nil'.Actual:${test40}"
+	exit 1
+fi
+
+test41=`echo -n '(eq "hello" "world")' | ./eval_test`
+if [[ $test41 != 'nil' ]]; then
+	echo -n "test41 failed.Expect:'nil'.Actual:${test41}"
+	exit 1
+fi
+
+test42=`echo -n '(eq "hello" "hello")' | ./eval_test`
+if [[ $test42 != 't' ]]; then
+	echo -n "test42 failed.Expect:'t'.Actual:${test42}"
+	exit 1
+fi
+
+test43=`echo -n '(eq hello hello)' | ./eval_test`
+if [[ $test43 != 't' ]]; then
+	echo -n "test43 failed.Expect:'t'.Actual:${test43}"
+	exit 1
+fi
+
+test44=`echo -n '(eq hello world)' | ./eval_test`
+if [[ $test44 != 'nil' ]]; then
+	echo -n "test44 failed.Expect:'nil'.Actual:${test44}"
+	exit 1
+fi

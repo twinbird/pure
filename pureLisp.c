@@ -423,13 +423,44 @@ Object *eval(Object *obj) {
 	exit(1);
 }
 
-//プリミティブ関数(Atom)
+//プリミティブ関数
+
+// Listならnil、その他はt
 Object *primitiveAtom(Object *args) {
 	Object *arg = args->pair.car;
 	if (arg->type == TYPE_PAIR) {
 		return NIL;
 	}
 	return makeSymbol("t");
+}
+
+// 数値、文字列は同値ならt.
+// その他はアドレスで比較.(つまり同一アドレスならt)
+Object *primitiveEq(Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	// 型が違えば異なる
+	if (one->type != two->type) {
+		return NIL;
+	}
+	switch (one->type) {
+		case TYPE_INTEGER:
+			if (one->integer == two->integer) {
+				return T;
+			}
+			break;
+		case TYPE_STRING:
+			if (strcmp(one->string, two->string) == 0) {
+				return T;
+			}
+			break;
+		default:
+			if (one == two) {
+				return T;
+			}
+			break;
+	}
+	return NIL;
 }
 
 // プリミティブ関数定義
@@ -450,4 +481,5 @@ void initialize() {
 	define(makeSymbol("nil"), NIL);
 	define(makeSymbol("t"), T);
 	definePrimitive(makeSymbol("atom"), primitiveAtom);
+	definePrimitive(makeSymbol("eq"), primitiveEq);
 }
