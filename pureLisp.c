@@ -208,6 +208,12 @@ void printObj(Object *obj) {
 		case TYPE_T:
 			printf("t");
 			break;
+		case TYPE_PRIMITIVE:
+			printf("primitive");
+			break;
+		case TYPE_FUNCTION:
+			printf("func");
+			break;
 		default:
 			printf("bug.Unknown type %d.", obj->type);
 			exit(1);
