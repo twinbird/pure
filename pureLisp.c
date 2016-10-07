@@ -357,6 +357,7 @@ Object *readList(FILE *fp) {
 /*
  * fp‚ğÁ”ï‚µ‚È‚ª‚ç“ü—Í‚ğObject‚É•ÏŠ·‚·‚é.
  * fp‚Íopen‚³‚ê‚½ó‘Ô‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢.
+ * EOF‚É’B‚µ‚½‚É‚ÍNULL‚ğ•Ô‚·.
  */
 Object *read(FILE *fp) {
 	char buf[MAX_TOKEN_LENGTH];
@@ -377,8 +378,7 @@ Object *read(FILE *fp) {
 		}
 		return makeSymbol(buf);
 	}
-	printf("malform.Token is %s\n", buf);
-	exit(1);
+	return NULL;
 }
 
 Object *eval(Object *env, Object *obj);
