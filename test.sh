@@ -79,7 +79,7 @@ fi
 
 # test12
 test12=`./string_print_test`
-if [[ $test12 != 'hello string' ]]; then
+if [[ $test12 != '"hello string"' ]]; then
 	echo -n "test12 failed.Actual:${test12}"
 	exit 1
 fi
@@ -135,7 +135,7 @@ fi
 
 # test20
 test20=`echo -n '"hello world"' | ./read_test`
-if [[ $test20 != 'hello world' ]]; then
+if [[ $test20 != '"hello world"' ]]; then
 	echo -n "test20 failed.Actual:${test20}"
 	exit 1
 fi
@@ -184,7 +184,7 @@ fi
 
 # test27
 test27=`echo -n '"hello world"' | ./eval_test`
-if [[ $test27 != 'hello world' ]]; then
+if [[ $test27 != '"hello world"' ]]; then
 	echo -n "test27 failed.Actual:${test27}"
 	exit 1
 fi
@@ -248,7 +248,7 @@ if [[ $test36 != 'nil' ]]; then
 	exit 1
 fi
 
-test37=`echo -n '(atom (quote 1 2))' | ./eval_test`
+test37=`echo -n '(atom (quote (1 2)))' | ./eval_test`
 if [[ $test37 != 'nil' ]]; then
 	echo -n "test37 failed.Expect:'nil'.Actual:${test37}"
 	exit 1
@@ -284,13 +284,13 @@ if [[ $test42 != 't' ]]; then
 	exit 1
 fi
 
-test43=`echo -n '(eq hello hello)' | ./eval_test`
+test43=`echo -n '(eq "hello" "hello")' | ./eval_test`
 if [[ $test43 != 't' ]]; then
 	echo -n "test43 failed.Expect:'t'.Actual:${test43}"
 	exit 1
 fi
 
-test44=`echo -n '(eq hello world)' | ./eval_test`
+test44=`echo -n '(eq "hello" "world")' | ./eval_test`
 if [[ $test44 != 'nil' ]]; then
 	echo -n "test44 failed.Expect:'nil'.Actual:${test44}"
 	exit 1
@@ -302,14 +302,32 @@ if [[ $test45 != '(1 . 2)' ]]; then
 	exit 1
 fi
 
-test46=`echo -n '(cons hello world)' | ./eval_test`
-if [[ $test46 != '(hello . world)' ]]; then
-	echo -n "test46 failed.Expect:'(hello . world)'.Actual:${test46}"
+test46=`echo -n '(cons "hello" "world")' | ./eval_test`
+if [[ $test46 != '("hello" . "world")' ]]; then
+	echo -n "test46 failed.Expect:'("hello" . "world")'.Actual:${test46}"
 	exit 1
 fi
 
-test47=`echo -n '(cons hello nil)' | ./eval_test`
-if [[ $test47 != '(hello)' ]]; then
-	echo -n "test47 failed.Expect:'(hello)'.Actual:${test47}"
+test47=`echo -n '(cons "hello" nil)' | ./eval_test`
+if [[ $test47 != '("hello")' ]]; then
+	echo -n "test47 failed.Expect:'("hello")'.Actual:${test47}"
+	exit 1
+fi
+
+test48=`echo -n '(car (quote (1 2)))' | ./eval_test`
+if [[ $test48 != '1' ]]; then
+	echo -n "test48 failed.Expect:'1'.Actual:${test48}"
+	exit 1
+fi
+
+test49=`echo -n '(cdr (quote (1 2)))' | ./eval_test`
+if [[ $test49 != '(2)' ]]; then
+	echo -n "test49 failed.Expect:'(2)'.Actual:${test49}"
+	exit 1
+fi
+
+test50=`echo -n '(cons (quote (1 2)) (quote (3 4)))' | ./eval_test`
+if [[ $test50 != '((1 2) 3 4)' ]]; then
+	echo -n "test50 failed.Expect:'((1 2) 3 4)'.Actual:${test50}"
 	exit 1
 fi

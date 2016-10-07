@@ -197,7 +197,7 @@ void printObj(Object *obj) {
 			printf("%s", obj->symbol);
 			break;
 		case TYPE_STRING:
-			printf("%s", obj->string);
+			printf("\"%s\"", obj->string);
 			break;
 		case TYPE_PAIR:
 			printList(obj);
@@ -368,9 +368,31 @@ Object *read(FILE *fp) {
 	exit(1);
 }
 
+Object *eval(Object *obj);
+
+Object *evalList(Object *obj) {
+	Object *newList, *tmp;
+	int count = 0;
+	// ペアでなければevalした値を返す
+	if (obj->type != TYPE_PAIR) {
+		return eval(obj);
+	}
+	newList = allocate(TYPE_PAIR);
+	tmp = newList;
+	// 評価して値を新しいリストへ入れていく
+	for (Object *p = obj; p->type != TYPE_NIL; p = p->pair.cdr) {
+		tmp->pair.car = eval(p->pair.car);
+		tmp->pair.cdr = allocate(TYPE_PAIR);
+		tmp = tmp->pair.cdr;
+	}
+	tmp->pair.car = NIL;
+	// 新しいリストを返す
+	return newList;
+}
+
 Object *apply(Object *sym, Object *param) {
 	if (sym->type != TYPE_SYMBOL) {
-		printf("malform on apply.");
+		printf("malform on apply. type:%d", sym->type);
 		exit(1);
 	}
 	// Special form
@@ -394,7 +416,7 @@ Object *apply(Object *sym, Object *param) {
 	// Primitive function
 	Object *func = lookup(TopEnv, sym);
 	if (func->type == TYPE_PRIMITIVE) {
-		return func->func(param);
+		return func->func(evalList(param));
 	}
 	printf("not implement type:%d.", func->type);
 	exit(1);
@@ -472,6 +494,14 @@ Object *primitiveCons(Object *args) {
 	return pair;
 }
 
+Object *primitiveCar(Object *args) {
+	return args->pair.car->pair.car;
+}
+
+Object *primitiveCdr(Object *args) {
+	return args->pair.car->pair.cdr;
+}
+
 // プリミティブ関数定義
 void definePrimitive(Object *sym, Primitive func) {
 	Object *obj = allocate(TYPE_PRIMITIVE);
@@ -492,4 +522,6 @@ void initialize() {
 	definePrimitive(makeSymbol("atom"), primitiveAtom);
 	definePrimitive(makeSymbol("eq"), primitiveEq);
 	definePrimitive(makeSymbol("cons"), primitiveCons);
+	definePrimitive(makeSymbol("car"), primitiveCar);
+	definePrimitive(makeSymbol("cdr"), primitiveCdr);
 }
