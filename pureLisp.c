@@ -318,6 +318,13 @@ Object *makeSymbol(char *buf) {
 	return obj;
 }
 
+Object *makeFunction(Object *params, Object *body) {
+	Object *func = allocate(TYPE_FUNCTION);
+	func->function.params = params;
+	func->function.body = body;
+	return func;
+}
+
 Object *read(FILE *fp);
 
 // readのlist処理用関数
@@ -413,11 +420,18 @@ Object *apply(Object *sym, Object *param) {
 			return eval(t);
 		}
 	}
+	if (strcmp(sym->symbol, "lambda") == 0) {
+		Object *param = param->pair.cdr->pair.car;
+		Object *body = param->pair.cdr->pair.cdr->pair.car;
+		return makeFunction(param, body);
+	}
 	// Primitive function
 	Object *func = lookup(TopEnv, sym);
 	if (func->type == TYPE_PRIMITIVE) {
-		return func->func(evalList(param));
+		return func->primitive(evalList(param));
 	}
+	// Function
+	
 	printf("not implement type:%d.", func->type);
 	exit(1);
 }
@@ -505,7 +519,7 @@ Object *primitiveCdr(Object *args) {
 // プリミティブ関数定義
 void definePrimitive(Object *sym, Primitive func) {
 	Object *obj = allocate(TYPE_PRIMITIVE);
-	obj->func = func;
+	obj->primitive = func;
 	define(sym, obj);
 }
 

@@ -8,7 +8,8 @@ typedef enum _objType {
 	TYPE_NIL,
 	TYPE_ENV,
 	TYPE_PRIMITIVE,
-	TYPE_T
+	TYPE_T,
+	TYPE_FUNCTION
 } ObjType;
 
 // Primitive function type
@@ -28,7 +29,11 @@ typedef struct _object {
 			struct _object *vars;
 			struct _object *up;
 		} env;
-		Primitive func;
+		Primitive primitive;
+		struct {
+			struct _object *params;
+			struct _object *body;
+		} function;
 	};
 } Object;
 
