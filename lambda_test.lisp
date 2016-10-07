@@ -1,3 +1,7 @@
-(define cadr (lambda (x) (car (cdr x))))
-(cadr (quote (1 2 3)))
+(define cadr
+  (lambda (x)
+	(car
+	  (cdr x))))
+(cadr
+  (quote (1 2 3)))
 
