@@ -431,6 +431,10 @@ Object *apply(Object *env, Object *sym, Object *param) {
 		return func->primitive(evalList(env, param));
 	}
 	// Function
+	if (func->type == TYPE_FUNCTION) {
+		Object *newEnv = makeEnv(env, func->function.params, param);
+		return eval(newEnv, func->function.body);
+	}
 	
 	printf("not implement type:%d.", func->type);
 	exit(1);
