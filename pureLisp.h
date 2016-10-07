@@ -44,7 +44,7 @@ void ungetToken(char *buf);
 Object *allocate(ObjType type);
 void print(Object *obj);
 Object *read(FILE *fp);
-Object *eval(Object *obj);
+Object *eval(Object *env, Object *obj);
 Object *lookup(Object *env, Object *symbol);
 Object *makeEnv(Object *env, Object *vars, Object *vals);
 Object *makeInteger(char *buf);

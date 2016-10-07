@@ -5,6 +5,6 @@
 int main() {
 	initialize();
 
-	print(eval(read(stdin)));
+	print(eval(TopEnv, read(stdin)));
 	return 0;
 }

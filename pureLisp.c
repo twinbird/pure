@@ -375,20 +375,20 @@ Object *read(FILE *fp) {
 	exit(1);
 }
 
-Object *eval(Object *obj);
+Object *eval(Object *env, Object *obj);
 
-Object *evalList(Object *obj) {
+Object *evalList(Object *env, Object *obj) {
 	Object *newList, *tmp;
 	int count = 0;
 	// ペアでなければevalした値を返す
 	if (obj->type != TYPE_PAIR) {
-		return eval(obj);
+		return eval(env, obj);
 	}
 	newList = allocate(TYPE_PAIR);
 	tmp = newList;
 	// 評価して値を新しいリストへ入れていく
 	for (Object *p = obj; p->type != TYPE_NIL; p = p->pair.cdr) {
-		tmp->pair.car = eval(p->pair.car);
+		tmp->pair.car = eval(env, p->pair.car);
 		tmp->pair.cdr = allocate(TYPE_PAIR);
 		tmp = tmp->pair.cdr;
 	}
@@ -397,7 +397,7 @@ Object *evalList(Object *obj) {
 	return newList;
 }
 
-Object *apply(Object *sym, Object *param) {
+Object *apply(Object *env, Object *sym, Object *param) {
 	if (sym->type != TYPE_SYMBOL) {
 		printf("malform on apply. type:%d", sym->type);
 		exit(1);
@@ -408,16 +408,16 @@ Object *apply(Object *sym, Object *param) {
 	}
 	if (strcmp(sym->symbol, "define") == 0) {
 		Object *sym = param->pair.car;
-		Object *val = eval(param->pair.cdr->pair.car);
+		Object *val = eval(env, param->pair.cdr->pair.car);
 		return define(sym, val);
 	}
 	if (strcmp(sym->symbol, "if") == 0) {
 		Object *t = param->pair.cdr->pair.car;
 		Object *f = param->pair.cdr->pair.cdr->pair.car;
 		if (param->pair.car->type == TYPE_NIL) {
-			return eval(f);
+			return eval(env, f);
 		} else {
-			return eval(t);
+			return eval(env, t);
 		}
 	}
 	if (strcmp(sym->symbol, "lambda") == 0) {
@@ -425,10 +425,10 @@ Object *apply(Object *sym, Object *param) {
 		Object *body = param->pair.cdr->pair.cdr->pair.car;
 		return makeFunction(param, body);
 	}
+	Object *func = lookup(env, sym);
 	// Primitive function
-	Object *func = lookup(TopEnv, sym);
 	if (func->type == TYPE_PRIMITIVE) {
-		return func->primitive(evalList(param));
+		return func->primitive(evalList(env, param));
 	}
 	// Function
 	
@@ -436,7 +436,7 @@ Object *apply(Object *sym, Object *param) {
 	exit(1);
 }
 
-Object *eval(Object *obj) {
+Object *eval(Object *env, Object *obj) {
 	if (obj->type == TYPE_INTEGER) {
 		return obj;
 	}
@@ -450,10 +450,10 @@ Object *eval(Object *obj) {
 		return obj;
 	}
 	if (obj->type == TYPE_SYMBOL) {
-		return lookup(TopEnv, obj);
+		return lookup(env, obj);
 	}
 	if (obj->type == TYPE_PAIR) {
-		return apply(obj->pair.car, obj->pair.cdr);
+		return apply(env, obj->pair.car, obj->pair.cdr);
 	}
 	printf("malform on eval.");
 	exit(1);
