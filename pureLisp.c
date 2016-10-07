@@ -404,7 +404,7 @@ Object *evalList(Object *env, Object *obj) {
 }
 
 Object *apply(Object *env, Object *sym, Object *param) {
-	if (sym->type != TYPE_SYMBOL) {
+	if (sym->type != TYPE_SYMBOL && sym->type != TYPE_PRIMITIVE && sym->type != TYPE_FUNCTION) {
 		printf("malform on apply. type:%d", sym->type);
 		exit(1);
 	}
@@ -427,9 +427,9 @@ Object *apply(Object *env, Object *sym, Object *param) {
 		}
 	}
 	if (strcmp(sym->symbol, "lambda") == 0) {
-		Object *param = param->pair.cdr->pair.car;
-		Object *body = param->pair.cdr->pair.cdr->pair.car;
-		return makeFunction(param, body);
+		Object *args = param->pair.car;
+		Object *body = param->pair.cdr->pair.car;
+		return makeFunction(args, body);
 	}
 	Object *func = lookup(env, sym);
 	// Primitive function
@@ -438,7 +438,7 @@ Object *apply(Object *env, Object *sym, Object *param) {
 	}
 	// Function
 	if (func->type == TYPE_FUNCTION) {
-		Object *newEnv = makeEnv(env, func->function.params, param);
+		Object *newEnv = makeEnv(env, func->function.params, evalList(env, param));
 		return eval(newEnv, func->function.body);
 	}
 	
