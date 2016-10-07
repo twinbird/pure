@@ -154,7 +154,7 @@ int getToken(char *buf, FILE *fp) {
 		return 0;
 	}
 
-	while (inString == 1 || (c != EOF && c != '(' && c != ')' && c != ' ')) {
+	while (inString == 1 || (c != EOF && c != '(' && c != ')' && c != ' ' && c != '\n')) {
 		if (c == '"') {
 			inString = inString == 0 ? 1 : 0;
 		}
