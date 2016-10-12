@@ -3,6 +3,7 @@
 
 int main(int argc, char *argv[]) {
 	Object *readExp, *evalExp;
+	Object *env;
 	FILE *fp = stdin;
 
 	if (argc == 2) {
@@ -12,8 +13,8 @@ int main(int argc, char *argv[]) {
 	initialize();
 
 	while (1) {
-		printf(">");
-		readExp = read(fp);
+		printf("Now Used Heap: %ld >", AllocatedHeapSize);
+		readExp = read(TopEnv, fp);
 		if (readExp == NULL) {
 			break;
 		}
