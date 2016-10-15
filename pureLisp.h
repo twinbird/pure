@@ -1,5 +1,5 @@
 #define MAX_TOKEN_LENGTH 256
-#define GC_THRESHOLD_BYTES 48
+#define GC_THRESHOLD_BYTES 1000000 // 1MB
 
 typedef enum _objType {
 	TYPE_PAIR,

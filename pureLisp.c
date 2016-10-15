@@ -909,6 +909,62 @@ static Object *primitiveModulo(Object *env, Object *args) {
 	newObj->integer = one->integer % two->integer;
 }
 
+static Object *primitiveLessThan(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("% is only apply integer\n");
+		exit(1);
+	}
+	if (one->integer < two->integer) {
+		return T;
+	} else {
+		return NIL;
+	}
+}
+
+static Object *primitiveGreaterThan(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("% is only apply integer\n");
+		exit(1);
+	}
+	if (one->integer > two->integer) {
+		return T;
+	} else {
+		return NIL;
+	}
+}
+
+static Object *primitiveLessOrEqual(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("% is only apply integer\n");
+		exit(1);
+	}
+	if (one->integer <= two->integer) {
+		return T;
+	} else {
+		return NIL;
+	}
+}
+
+static Object *primitiveGreaterOrEqual(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("% is only apply integer\n");
+		exit(1);
+	}
+	if (one->integer >= two->integer) {
+		return T;
+	} else {
+		return NIL;
+	}
+}
+
 // プリミティブ関数定義
 static void definePrimitive(Object *sym, Primitive func) {
 	Object *obj = allocate(TopEnv, TYPE_PRIMITIVE);
@@ -945,5 +1001,9 @@ void initialize() {
 	definePrimitive(makeSymbol(TopEnv, "*"), primitiveMultiple);
 	definePrimitive(makeSymbol(TopEnv, "/"), primitiveDivide);
 	definePrimitive(makeSymbol(TopEnv, "%"), primitiveModulo);
+	definePrimitive(makeSymbol(TopEnv, "<"), primitiveLessThan);
+	definePrimitive(makeSymbol(TopEnv, ">"), primitiveGreaterThan);
+	definePrimitive(makeSymbol(TopEnv, "<="), primitiveLessOrEqual);
+	definePrimitive(makeSymbol(TopEnv, ">="), primitiveGreaterOrEqual);
 	GCUnlock();
 }
