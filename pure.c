@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "pureLisp.h"
 
 int main(int argc, char *argv[]) {
@@ -10,7 +11,12 @@ int main(int argc, char *argv[]) {
 
 	// 引数があればソースファイルを読み込む
 	if (argc == 2) {
-		fp = fopen(argv[1], "r");
+		if (strcmp(argv[1], "-e") == 0) {
+			// -eオプションは標準入力で読み込みと評価だけにする
+			// (多言語の慣習と違うけどテストが楽なので)
+		} else {
+			fp = fopen(argv[1], "r");
+		}
 	}
 
 	if (argc == 2) {
