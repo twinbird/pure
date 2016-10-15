@@ -639,6 +639,13 @@ static Object *readList(Object *env, FILE *fp) {
 	char buf[MAX_TOKEN_LENGTH];
 	memset(buf, '\0', MAX_TOKEN_LENGTH);
 
+	// 空リスト判断のために1トークン先読みして戻す
+	getToken(buf, fp);
+	if (strcmp(buf, ")") == 0) {
+		return NIL;
+	} else {
+		ungetToken(buf);
+	}
 	obj->pair.car = read(env, fp);
 
 	// cdrへの設定の判断のために1トークン先読みして戻す
