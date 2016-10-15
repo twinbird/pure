@@ -124,6 +124,7 @@ static Object *makeEnv(Object *env, Object *vars, Object *vals) {
 }
 
 // env‚ğ’²‚×‚Ä•Ï”‚ğQÆ‚·‚é
+// –¢’è‹`‚È‚çNULL‚ğ•Ô‚·
 static Object *lookup(Object *env, Object *symbol) {
 	Object *tbl, *p, *cell;
 	// Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚çNIL‚ğ•Ô‚·
@@ -141,8 +142,13 @@ static Object *lookup(Object *env, Object *symbol) {
 			return p->pair.cdr;
 		}
 	}
-	// Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚çã‚ÌŠÂ‹«‚ğ’²‚×‚é
-	return lookup(env->env.up, symbol);
+	if (env == TopEnv) {
+		// –¢’è‹`‚¾‚Á‚½
+		return NULL;
+	} else {
+		// Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚çã‚ÌŠÂ‹«‚ğ’²‚×‚é
+		return lookup(env->env.up, symbol);
+	}
 }
 
 /*
@@ -719,6 +725,10 @@ static Object *apply(Object *env, Object *sym, Object *param) {
 		return makeFunction(env, args, body);
 	}
 	Object *func = lookup(env, sym);
+	if (func == NULL) {
+		printf("undefined function '%s'\n", sym->symbol);
+		exit(1);
+	}
 	// Primitive function
 	if (func->type == TYPE_PRIMITIVE) {
 		Object *newEnv = makeEnv(env, NIL, NIL);
@@ -748,7 +758,12 @@ Object *eval(Object *env, Object *obj) {
 		return obj;
 	}
 	if (obj->type == TYPE_SYMBOL) {
-		return lookup(env, obj);
+		Object *sym = lookup(env, obj);
+		if (sym == NULL) {
+			printf("undefined symbol '%s'\n", obj->symbol);
+			exit(1);
+		}
+		return sym;
 	}
 	if (obj->type == TYPE_PAIR) {
 		return apply(env, obj->pair.car, obj->pair.cdr);
