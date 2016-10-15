@@ -6,45 +6,51 @@
 #include <setjmp.h>
 #include "pureLisp.h"
 
+#ifdef DEBUG
+#define DEBUG_PRINT(msg) fprintf(stderr, msg)
+#else
+#define DEBUG_PRINT
+#endif
+
 // ungetToken用のバッファ
-char getTokenBuffer[MAX_TOKEN_LENGTH] = {'\0'};
+static char getTokenBuffer[MAX_TOKEN_LENGTH] = {'\0'};
 
 // symbolテーブル(initializeで初期化)
-Object *SymbolTable = NULL;
+static Object *SymbolTable = NULL;
 
 // トップレベルの環境(initializeで初期化)
 Object *TopEnv = NULL;
 
 // GC用 オブジェクトテーブル
 // 全てのオブジェクトはこのテーブルに属する
-Object *ObjectTable = NULL;
+static Object *ObjectTable = NULL;
 
 // GC用 割り当て済みヒープサイズカウンタ
-unsigned long AllocatedHeapSize = 0;
+static unsigned long AllocatedHeapSize = 0;
 
 // GC用 スタックの開始位置
-Object *StackStartPosition = NULL;
+static Object *StackStartPosition = NULL;
 
 // NIL定数(initializeで初期化)
-Object *NIL = NULL;
+static Object *NIL = NULL;
 // T定数(initializeで初期化)
-Object *T = NULL;
+static Object *T = NULL;
 
 // 1の間はGCしない
-int GCLockFlag = 0;
+static int GCLockFlag = 0;
 
-void GCLock() {
+static void GCLock() {
 	GCLockFlag = 1;
 }
 
-void GCUnlock() {
+static void GCUnlock() {
 	GCLockFlag = 0;
 }
 
-void DebugPrintObjectType(Object *obj);
+static Object *allocate(Object *env, ObjType type);
 
 // スペース以外の文字列が来るまで入力を捨てる
-void skipSpace(FILE *fp) {
+static void skipSpace(FILE *fp) {
 	int c = fgetc(fp);
 	// この後に続くスペースと改行とタブは捨てる
 	while (c == ' ' || c == '\n' || c == '\t') {
@@ -57,7 +63,7 @@ void skipSpace(FILE *fp) {
 // トップレベルの環境で変数を定義する
 // 定義済みなら値を上書きする
 // 返り値はシンボル
-Object *define(Object *sym, Object *val) {
+static Object *define(Object *sym, Object *val) {
 	Object *newCell = allocate(TopEnv, TYPE_PAIR);
 	// 新しい変数(シンボルと値)のペア
 	Object *newVar = allocate(TopEnv, TYPE_PAIR);
@@ -87,7 +93,7 @@ Object *define(Object *sym, Object *val) {
 }
 
 // envの下のスコープ(環境)を作成する.
-Object *makeEnv(Object *env, Object *vars, Object *vals) {
+static Object *makeEnv(Object *env, Object *vars, Object *vals) {
 	// 新しい環境
 	Object *newEnv = allocate(env, TYPE_ENV);
 	// 値とシンボルのペアのリスト(NILを入れて空リストにしておく)
@@ -118,7 +124,7 @@ Object *makeEnv(Object *env, Object *vars, Object *vals) {
 }
 
 // envを調べて変数を参照する
-Object *lookup(Object *env, Object *symbol) {
+static Object *lookup(Object *env, Object *symbol) {
 	Object *tbl, *p, *cell;
 	// 見つからなかったらNILを返す
 	if (env->type == TYPE_NIL) {
@@ -146,7 +152,7 @@ Object *lookup(Object *env, Object *symbol) {
  *   0: 入力に続きがある.
  *   1: 入力が終端になった.
  */
-int getToken(char *buf, FILE *fp) {
+static int getToken(char *buf, FILE *fp) {
 	int c = 0;
 	int ptr = 0;
 	int inString = 0; // 0: 通常処理中, 1: 文字列内処理中
@@ -198,12 +204,12 @@ int getToken(char *buf, FILE *fp) {
 /*
  * getTokenで取得したトークン一つをgetTokenのバッファに戻す.
  */
-void ungetToken(char *buf) {
+static void ungetToken(char *buf) {
 	strcpy(getTokenBuffer, buf);
 }
 
 // 未使用のsymbolをsymbolテーブルから取り除く
-void removeUnusedSymbol() {
+static void removeUnusedSymbol() {
 	Object *tmp, *prev;
 	Object *symPair;
 	for (prev = tmp = SymbolTable; tmp->type != TYPE_NIL; prev = tmp, tmp = tmp->pair.cdr) {
@@ -218,7 +224,7 @@ void removeUnusedSymbol() {
 }
 
 // オブジェクトを開放する
-void deallocate(Object *obj) {
+static void deallocate(Object *obj) {
 	Object *prev, *tmp;
 	// 予約語は回収しない
 	switch (obj->type) {
@@ -259,7 +265,7 @@ void deallocate(Object *obj) {
 }
 
 // 引数のポインタがObjectTableの領域内に入っていたら1を返す
-int maybeObject(Object *obj) {
+static int maybeObject(Object *obj) {
 	unsigned long addr = (unsigned long)obj;
 	unsigned long tmpAddr;
 	// ObjectTableを1つずつ調べて確保した領域内にあるか調べる.
@@ -272,9 +278,9 @@ int maybeObject(Object *obj) {
 	return 0;
 }
 
-void GCMarkingEnv(Object *basePair);
+static void GCMarkingEnv(Object *basePair);
 
-void GCMarkingSub(Object *obj) {
+static void GCMarkingSub(Object *obj) {
 	obj->gcmark = USED;
 	if (obj->type == TYPE_PAIR) {
 		if (maybeObject(obj->pair.car) == 1) {
@@ -296,7 +302,7 @@ void GCMarkingSub(Object *obj) {
 }
 
 // 現在の環境を起点に再帰的にマークする
-void GCMarkingEnv(Object *basePair) {
+static void GCMarkingEnv(Object *basePair) {
 	// この環境は使っている
 	basePair->gcmark = USED;
 	// 現在の環境をすべてマーキング
@@ -310,7 +316,7 @@ void GCMarkingEnv(Object *basePair) {
 }
 
 // レジスタ領域をマークする
-void GCMarkingRegister() {
+static void GCMarkingRegister() {
 	int i;
 	// 現時点でのレジスタのスナップショットをとる
 	jmp_buf registerSnapshot;
@@ -331,7 +337,7 @@ void GCMarkingRegister() {
 }
 
 // スタック領域をマークする
-void GCMarkingStack() {
+static void GCMarkingStack() {
 	// GC用 スタック終了(先頭)のアドレス確認用
 	Object stackEndObject;
 	unsigned long stackEndAddr = (unsigned long)&stackEndObject;
@@ -359,7 +365,7 @@ void GCMarkingStack() {
 }
 
 // マーク&スイープのマーク処理
-void GCMarking(Object *rootEnv) {
+static void GCMarking(Object *rootEnv) {
 	// 全て一度UNUSEDにする
 	for (Object *tmp = ObjectTable; tmp != NULL; tmp = tmp->next) {
 		tmp->gcmark = UNUSED;
@@ -379,7 +385,7 @@ void GCMarking(Object *rootEnv) {
 
 // マーク&スイープのスイープ処理
 // ObjectTableの順に辿ってMark済みのものを開放する
-void GCSweep() {
+static void GCSweep() {
 	Object *tmp = ObjectTable;
 	Object *freeTgt = NULL;
 	while (tmp != NULL) {
@@ -389,51 +395,14 @@ void GCSweep() {
 		tmp = tmp->next;
 		// マークされていなければ開放
 		if (freeTgt->gcmark == UNUSED) {
-			fprintf(stderr, "[GC] deallocated.");
-			DebugPrintObjectType(freeTgt);
+			DEBUG_PRINT("[GC] deallocated.\n");
 			deallocate(freeTgt);
 		}
 	}
 }
 
-// ObjectのTypeを表示(Debug用)
-void DebugPrintObjectType(Object *obj) {
-	switch (obj->type) {
-		case TYPE_INTEGER:
-			fprintf(stderr, "Object type is integer\n");
-			break;
-		case TYPE_SYMBOL:
-			fprintf(stderr, "Object type is symbol\n");
-			break;
-		case TYPE_STRING:
-			fprintf(stderr, "Object type is string\n");
-			break;
-		case TYPE_PAIR:
-			fprintf(stderr, "Object type is pair\n");
-			break;
-		case TYPE_NIL:
-			fprintf(stderr, "Object type is nil\n");
-			break;
-		case TYPE_T:
-			fprintf(stderr, "Object type is t\n");
-			break;
-		case TYPE_PRIMITIVE:
-			fprintf(stderr, "Object type is primitive\n");
-			break;
-		case TYPE_FUNCTION:
-			fprintf(stderr, "Object type is function\n");
-			break;
-		case TYPE_ENV:
-			fprintf(stderr, "Object type is environment\n");
-			break;
-		default:
-			fprintf(stderr, "Unknown type %d.\n", obj->type);
-			break;
-	}
-}
-
 // ObjectTableの状況を見る(Debug用)
-void DebugPrintObjectTable() {
+static void DebugPrintObjectTable() {
 	fprintf(stderr, "-----------------------------\n");
 	if (ObjectTable == NULL) {
 		fprintf(stderr, "ObjectTable is null\n");
@@ -482,7 +451,7 @@ void DebugPrintObjectTable() {
 }
 
 // 新しいObjectを作成する
-Object *allocate(Object *env, ObjType type) {
+static Object *allocate(Object *env, ObjType type) {
 	if (GCLockFlag == 0) {
 		// 割り当て済み容量が一定以上になっていたらGCをかける
 		if (AllocatedHeapSize >= GC_THRESHOLD_BYTES) {
@@ -504,10 +473,10 @@ Object *allocate(Object *env, ObjType type) {
 	return obj;
 }
 
-void printList(Object *obj);
+static void printList(Object *obj);
 
 // Objectの内容を印字(atomのみ)
-void printObj(Object *obj) {
+static void printObj(Object *obj) {
 	switch (obj->type) {
 		case TYPE_INTEGER:
 			printf("%d", obj->integer);
@@ -544,7 +513,7 @@ void printObj(Object *obj) {
 }
 
 // Objectの内容を印字(listのみ)
-void printList(Object *obj) {
+static void printList(Object *obj) {
 	print(obj->pair.car);
 	if (obj->pair.cdr->type != TYPE_NIL) {
 		if (obj->pair.cdr->type == TYPE_PAIR) {
@@ -571,7 +540,7 @@ void print(Object *obj) {
 }
 
 // 引数が数値のみで構成されていれば1を返す.
-int isInteger(char *buf) {
+static int isInteger(char *buf) {
 	// 1文字目は-(マイナス)でもよい
 	if (isdigit(*buf) == 0 && *buf != '-') {
 		return 0;
@@ -587,7 +556,7 @@ int isInteger(char *buf) {
 }
 
 // 引数が文字列であれば1を返す
-int isString(char *buf) {
+static int isString(char *buf) {
 	// 1文字目が"である
 	if (*buf != '"') {
 		return 0;
@@ -604,13 +573,13 @@ int isString(char *buf) {
 	return 1;
 }
 
-Object *makeInteger(Object *env, char *buf) {
+static Object *makeInteger(Object *env, char *buf) {
 	Object *obj = allocate(env, TYPE_INTEGER);
 	obj->integer = atoi(buf);
 	return obj;
 }
 
-Object *makeString(Object *env, char *buf) {
+static Object *makeString(Object *env, char *buf) {
 	Object *obj = allocate(env, TYPE_STRING);
 	int n = strlen(buf);
 	// 前後の"の分を-2, 終端の\0の分で+1
@@ -626,7 +595,7 @@ Object *makeString(Object *env, char *buf) {
 
 // symbolテーブルへ登録する.
 // 登録済みなら登録済みのObjectを返す.
-Object *makeSymbol(Object *env, char *buf) {
+static Object *makeSymbol(Object *env, char *buf) {
 	// テーブルに登録済みか調べる
 	for (Object *o = SymbolTable; o->type != TYPE_NIL; o = o->pair.cdr) {
 		if (strcmp(o->pair.car->symbol, buf) == 0) {
@@ -646,17 +615,15 @@ Object *makeSymbol(Object *env, char *buf) {
 	return obj;
 }
 
-Object *makeFunction(Object *env, Object *params, Object *body) {
+static Object *makeFunction(Object *env, Object *params, Object *body) {
 	Object *func = allocate(env, TYPE_FUNCTION);
 	func->function.params = params;
 	func->function.body = body;
 	return func;
 }
 
-Object *read(Object *env, FILE *fp);
-
 // readのlist処理用関数
-Object *readList(Object *env, FILE *fp) {
+static Object *readList(Object *env, FILE *fp) {
 	Object *obj = allocate(env, TYPE_PAIR);
 	char buf[MAX_TOKEN_LENGTH];
 	memset(buf, '\0', MAX_TOKEN_LENGTH);
@@ -703,9 +670,7 @@ Object *read(Object *env, FILE *fp) {
 	return NULL;
 }
 
-Object *eval(Object *env, Object *obj);
-
-Object *evalList(Object *env, Object *obj) {
+static Object *evalList(Object *env, Object *obj) {
 	Object *newList, *tmp;
 	int count = 0;
 	// ペアでなければevalした値を返す
@@ -725,7 +690,7 @@ Object *evalList(Object *env, Object *obj) {
 	return newList;
 }
 
-Object *apply(Object *env, Object *sym, Object *param) {
+static Object *apply(Object *env, Object *sym, Object *param) {
 	if (sym->type != TYPE_SYMBOL && sym->type != TYPE_PRIMITIVE && sym->type != TYPE_FUNCTION) {
 		printf("malform on apply. type:%d", sym->type);
 		exit(1);
@@ -795,7 +760,7 @@ Object *eval(Object *env, Object *obj) {
 //プリミティブ関数
 
 // Listならnil、その他はt
-Object *primitiveAtom(Object *env, Object *args) {
+static Object *primitiveAtom(Object *env, Object *args) {
 	Object *arg = args->pair.car;
 	if (arg->type == TYPE_PAIR) {
 		return NIL;
@@ -805,7 +770,7 @@ Object *primitiveAtom(Object *env, Object *args) {
 
 // 数値、文字列は同値ならt.
 // その他はアドレスで比較.(つまり同一アドレスならt)
-Object *primitiveEq(Object *env, Object *args) {
+static Object *primitiveEq(Object *env, Object *args) {
 	Object *one = args->pair.car;
 	Object *two = args->pair.cdr->pair.car;
 	// 型が違えば異なる
@@ -832,7 +797,7 @@ Object *primitiveEq(Object *env, Object *args) {
 	return NIL;
 }
 
-Object *primitiveCons(Object *env, Object *args) {
+static Object *primitiveCons(Object *env, Object *args) {
 	Object *one = args->pair.car;
 	Object *two = args->pair.cdr->pair.car;
 	Object *pair = allocate(env, TYPE_PAIR);
@@ -841,16 +806,21 @@ Object *primitiveCons(Object *env, Object *args) {
 	return pair;
 }
 
-Object *primitiveCar(Object *env, Object *args) {
+static Object *primitiveCar(Object *env, Object *args) {
 	return args->pair.car->pair.car;
 }
 
-Object *primitiveCdr(Object *env, Object *args) {
+static Object *primitiveCdr(Object *env, Object *args) {
 	return args->pair.car->pair.cdr;
 }
 
+static Object *primitivePrint(Object *env, Object *args) {
+	print(args->pair.car);
+	return args->pair.car;
+}
+
 // プリミティブ関数定義
-void definePrimitive(Object *sym, Primitive func) {
+static void definePrimitive(Object *sym, Primitive func) {
 	Object *obj = allocate(TopEnv, TYPE_PRIMITIVE);
 	obj->primitive = func;
 	define(sym, obj);
@@ -878,5 +848,6 @@ void initialize() {
 	definePrimitive(makeSymbol(TopEnv, "cons"), primitiveCons);
 	definePrimitive(makeSymbol(TopEnv, "car"), primitiveCar);
 	definePrimitive(makeSymbol(TopEnv, "cdr"), primitiveCdr);
+	definePrimitive(makeSymbol(TopEnv, "print"), primitivePrint);
 	GCUnlock();
 }

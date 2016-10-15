@@ -46,21 +46,8 @@ typedef struct _object {
 } Object;
 
 extern Object *TopEnv;
-extern Object *NIL;
-extern Object *T;
-extern Object *EvaluatingExpression;
-extern unsigned long AllocatedHeapSize;
 
-int getToken(char *buf, FILE *fp);
-void ungetToken(char *buf);
-Object *allocate(Object *env, ObjType type);
-void print(Object *obj);
+void initialize();
 Object *read(Object *env, FILE *fp);
 Object *eval(Object *env, Object *obj);
-Object *lookup(Object *env, Object *symbol);
-Object *makeEnv(Object *env, Object *vars, Object *vals);
-Object *makeInteger(Object *env, char *buf);
-Object *makeSymbol(Object *env, char *buf);
-Object *makeString(Object *env, char *buf);
-Object *define(Object *sym, Object *val);
-void initialize();
+void print(Object *obj);

@@ -2,6 +2,7 @@
   (lambda (x)
 	(car
 	  (cdr x))))
-(cadr
-  (quote (1 2 3)))
 
+(print 
+  (cadr 
+	(quote (1 2 3))))
