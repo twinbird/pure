@@ -551,6 +551,11 @@ static int isInteger(char *buf) {
 	if (isdigit(*buf) == 0 && *buf != '-') {
 		return 0;
 	}
+	// 1文字目が-(マイナス)の時は2文字目は数字でないとならない
+	if (isdigit(*buf) == 0 &&
+			(*(buf + 1) == '\0' || isdigit(*(buf + 1)) == 0)) {
+		return 0;
+	}
 	buf++;
 	while (*buf != '\0') {
 		if (isdigit(*buf) == 0) {
@@ -834,6 +839,69 @@ static Object *primitivePrint(Object *env, Object *args) {
 	return args->pair.car;
 }
 
+static Object *primitiveAdd(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("+ is only apply integer\n");
+		exit(1);
+	}
+	Object *newObj = allocate(env, TYPE_INTEGER);
+	newObj->integer = one->integer + two->integer;
+	return newObj;
+}
+
+static Object *primitiveSubtract(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("- is only apply integer\n");
+		exit(1);
+	}
+	Object *newObj = allocate(env, TYPE_INTEGER);
+	newObj->integer = one->integer - two->integer;
+	return newObj;
+}
+
+static Object *primitiveMultiple(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("* is only apply integer\n");
+		exit(1);
+	}
+	Object *newObj = allocate(env, TYPE_INTEGER);
+	newObj->integer = one->integer * two->integer;
+	return newObj;
+}
+
+static Object *primitiveDivide(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("/ is only apply integer\n");
+		exit(1);
+	}
+	if (two->integer == 0) {
+		printf("zero divide error.\n");
+		exit(1);
+	}
+	Object *newObj = allocate(env, TYPE_INTEGER);
+	newObj->integer = one->integer / two->integer;
+	return newObj;
+}
+
+static Object *primitiveModulo(Object *env, Object *args) {
+	Object *one = args->pair.car;
+	Object *two = args->pair.cdr->pair.car;
+	if (one->type != TYPE_INTEGER || two->type != TYPE_INTEGER) {
+		printf("% is only apply integer\n");
+		exit(1);
+	}
+	Object *newObj = allocate(env, TYPE_INTEGER);
+	newObj->integer = one->integer % two->integer;
+}
+
 // プリミティブ関数定義
 static void definePrimitive(Object *sym, Primitive func) {
 	Object *obj = allocate(TopEnv, TYPE_PRIMITIVE);
@@ -863,6 +931,12 @@ void initialize() {
 	definePrimitive(makeSymbol(TopEnv, "cons"), primitiveCons);
 	definePrimitive(makeSymbol(TopEnv, "car"), primitiveCar);
 	definePrimitive(makeSymbol(TopEnv, "cdr"), primitiveCdr);
+	// もはやpureではないやつら
 	definePrimitive(makeSymbol(TopEnv, "print"), primitivePrint);
+	definePrimitive(makeSymbol(TopEnv, "+"), primitiveAdd);
+	definePrimitive(makeSymbol(TopEnv, "-"), primitiveSubtract);
+	definePrimitive(makeSymbol(TopEnv, "*"), primitiveMultiple);
+	definePrimitive(makeSymbol(TopEnv, "/"), primitiveDivide);
+	definePrimitive(makeSymbol(TopEnv, "%"), primitiveModulo);
 	GCUnlock();
 }
