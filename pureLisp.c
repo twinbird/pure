@@ -723,9 +723,10 @@ static Object *apply(Object *env, Object *sym, Object *param) {
 		return define(sym, val);
 	}
 	if (strcmp(sym->symbol, "if") == 0) {
+		Object *cond = eval(env, param->pair.car);
 		Object *t = param->pair.cdr->pair.car;
 		Object *f = param->pair.cdr->pair.cdr->pair.car;
-		if (param->pair.car->type == TYPE_NIL) {
+		if (cond->type == TYPE_NIL) {
 			return eval(env, f);
 		} else {
 			return eval(env, t);
