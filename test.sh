@@ -320,3 +320,11 @@ if [[ $test18_1 != 'nil' ]]; then
 	exit 1
 fi
 
+# test19
+# takの動作確認(再帰とスコープも)
+test19=`./pure tests/tak.lisp`
+if [[ $test19 != "10" ]]; then
+	echo -n "test19 failed.Expect:10, Actual:${test19}"
+	exit 1
+fi
+
