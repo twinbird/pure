@@ -28,7 +28,7 @@ $ ./pure
 $ ./pure [filename]
 ```
 
-###### 3. Running command line argment
+###### 3. Running from stdin source code
 
 ```sh
 $ echo "(print 1)" | ./pure
