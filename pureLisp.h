@@ -41,6 +41,7 @@ typedef struct _object {
 		struct {
 			struct _object *params;
 			struct _object *body;
+			struct _object *applyEnv;
 		} function;
 	};
 } Object;

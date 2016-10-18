@@ -328,3 +328,11 @@ if [[ $test19 != "10" ]]; then
 	exit 1
 fi
 
+# test20
+# クロージャの動作確認
+test20=`./pure tests/closure_test.lisp`
+if [[ $test20 != "2334" ]]; then
+	echo -n "test20 failed.Expect:'2334', Actual:${test20}"
+	exit 1
+fi
+

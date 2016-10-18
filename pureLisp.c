@@ -630,6 +630,7 @@ static Object *makeFunction(Object *env, Object *params, Object *body) {
 	Object *func = allocate(env, TYPE_FUNCTION);
 	func->function.params = params;
 	func->function.body = body;
+	func->function.applyEnv = env;
 	return func;
 }
 
@@ -749,7 +750,7 @@ static Object *apply(Object *env, Object *sym, Object *param) {
 	}
 	// Function
 	if (func->type == TYPE_FUNCTION) {
-		Object *newEnv = makeEnv(env, func->function.params, evalList(env, param));
+		Object *newEnv = makeEnv(func->function.applyEnv, func->function.params, evalList(env, param));
 		return eval(newEnv, func->function.body);
 	}
 	
